@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div id="container" :style="{width:width+'px',height:height+'px',margin:'34px auto'}" />
+  <div class="map">
+    <div id="container"/>
   </div>
 </template>
 
@@ -9,14 +9,6 @@ import AMap from "AMap"; //引入高德地图AMap
 export default {
   name: "GMap",
   props: {
-    width: {
-      type: Number,
-      default: 300
-    },
-    height: {
-      type: Number,
-      default: 300
-    }
   }, //添加变量，方便组件复用
   methods: {
     //初始化地图
@@ -37,3 +29,7 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.map,#container{width: 100%;height: 100%;}
+</style>
