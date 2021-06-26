@@ -1,8 +1,25 @@
 module.exports = {
-  lintOnSave: false,
   configureWebpack: {
     externals: {
-      'AMap': 'AMap'
-    }
-  }
-}
+      AMap: "AMap", //高德地图配置
+    },
+  },
+  devServer: {
+    open: true,
+    host: "localhost",
+    port: 8080,
+    https: false,
+    hotOnly: false,
+    proxy: {
+      // 配置跨域
+      "/api": {
+        target: "https://eleme3-2021.herokuapp.com//api/",
+        ws: true,
+        changOrigin: true,
+        pathRewrite: {
+          "^/api": "",
+        },
+      },
+    },
+  },
+};

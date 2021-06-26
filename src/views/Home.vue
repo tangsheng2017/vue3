@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <div>
+    <div class="map">
       <GMap></GMap>
     </div>
   </div>
@@ -8,12 +8,18 @@
 
 <script>
 // @ is an alias to /src
-import GMap from '@/components/GMap.vue';
+import GMap from "@/components/GMap.vue";
 
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
     GMap,
   },
 };
 </script>
+<style lang="scss" scoped>
+.map {
+  width: 500px;
+  height: 300px;
+}
+</style>
