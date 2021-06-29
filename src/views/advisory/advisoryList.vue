@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="noData" v-if="noData">
-      <img src="../../assets/nodata.png" />
+      <!-- <img src="../../assets/nodata.png" /> -->
       <div>暂无数据</div>
     </div>
     <div v-else>
@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import { getNewsList } from "@/api/advisory.js";
 export default {
   data() {
     return {
@@ -40,9 +41,23 @@ export default {
     };
   },
   mounted() {
-    this.getList("first");
+    // this.getList("first");
+    this.getNewsList()
   },
   methods: {
+    async getNewsList() {
+      // this.showLoading = true;
+      // this.listData = [];
+      try {
+        const vdata = await getNewsList(this.pullObj);
+        console.log(vdata)
+        // this.handleResultList(result.data, type);
+      } catch (error) {
+        // this.errorToast(error.message);
+      } finally {
+        this.showLoading = false;
+      }
+    },
     scrollBottom() {
       // 滚动到页面底部时加载
       const el = document.querySelector("#content_box");

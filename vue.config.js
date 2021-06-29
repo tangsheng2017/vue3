@@ -13,7 +13,7 @@ module.exports = {
     proxy: {
       // 配置跨域
       "/api": {
-        target: "https://eleme3-2021.herokuapp.com//api/",
+        target: "https://dev.u-road.com/Urescue/project/public/index.php/",
         ws: true,
         changOrigin: true,
         pathRewrite: {
