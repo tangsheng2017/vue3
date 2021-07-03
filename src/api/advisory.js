@@ -13,5 +13,4 @@ export const getNewsList = ({ index, size }) =>
     size,
     userid: "ec1d1ba2-dec7-11ea-991f-525400cb9d54",
     username: "王飞",
-    uuid: "",
   });

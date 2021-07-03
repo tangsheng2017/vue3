@@ -42,21 +42,15 @@ export default {
   },
   mounted() {
     // this.getList("first");
-    this.getNewsList()
+    this.getNewsList();
   },
   methods: {
     async getNewsList() {
-      // this.showLoading = true;
-      // this.listData = [];
       try {
         const vdata = await getNewsList(this.pullObj);
-        console.log(vdata)
+        console.log(vdata, "vdata");
         // this.handleResultList(result.data, type);
-      } catch (error) {
-        // this.errorToast(error.message);
-      } finally {
-        this.showLoading = false;
-      }
+      } catch (error) {}
     },
     scrollBottom() {
       // 滚动到页面底部时加载

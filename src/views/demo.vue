@@ -1,36 +1,31 @@
 <template>
   <div class="demo">
-    <van-button type="primary" size="large">大号按钮</van-button>
-    <div class="demo-txt">12348</div>
+    <input type="text" v-model="number1" @change="inputChange" />
   </div>
 </template>
 
 <script>
-import { reactive } from 'vue';
-import { Button } from 'vant';
 export default {
-  components: {
-    [Button.name]: Button,
-  },
-  setup() {
-    const state = reactive({
-      a: 0,
-    });
-
-    function increment() {
-      state.a++;
-    }
-
+  data() {
     return {
-      state,
-      increment,
+      number1: 0,
     };
+  },
+  watch: {
+    number1(newVal) {
+      console.log(newVal, "newVal");
+    },
+  },
+  methods: {
+    inputChange(e) {
+      console.log(e, "e");
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.demo-txt{
+.demo-txt {
   font-size: 1rem;
 }
 </style>

@@ -50,7 +50,14 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {
+      "no-empty": [
+        "error",
+        {
+          "allowEmptyCatch": true
+        }
+      ]
+    }
   },
   "browserslist": [
     "> 1%",

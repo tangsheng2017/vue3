@@ -2,6 +2,7 @@ import axios from "axios";
 // const pageConfig = require("@/utils/config.js");
 import { Decrypt, Encrypt } from "./crypto-js/crypto-js";
 import md5 from "js-md5";
+import { Toast, Dialog } from "vant";
 
 axios.defaults.timeout = 50000;
 axios.defaults.baseURL = "/api";
@@ -51,6 +52,22 @@ function filterNull(o) {
 // 请求拦截器配置
 axios.interceptors.request.use(
   (config) => {
+    const timestamp = new Date().getTime();
+    let paramsTemp = objKeySort(config.data); //升序排序
+    paramsTemp = filterNull(paramsTemp);
+    let sign = md5(JSON.stringify(paramsTemp) + timestamp);
+    const paramsPost = {
+      data: paramsTemp,
+      timestamp: timestamp,
+      sign: sign,
+    };
+    config.data = Encrypt(JSON.stringify(paramsPost));
+
+    Toast.loading({
+      message: "加载中...",
+      forbidClick: true,
+    });
+
     return config;
   },
   (error) => {
@@ -58,23 +75,15 @@ axios.interceptors.request.use(
   }
 );
 
-// response 拦截器
+// response 响应拦截
 axios.interceptors.response.use(
   (response) => {
+    response.data = JSON.parse(Decrypt(response.data));
+    Toast.clear();
     return response;
-    // if (response.data.errcode === "0") {
-    //   return response;
-    // }
-    // if (response.data.msg) {
-    //   throw new Error(response.data.msg);
-    // } else if (errorMessage[response.data.errcode]) {
-    //   throw new Error(errorMessage[response.data.errcode]);
-    // } else {
-    //   throw new Error("网络繁忙，请稍后再试！");
-    // }
   },
   (error) => {
-    return Promise.reject(error.message);
+    return Promise.reject(error);
   }
 );
 
@@ -110,20 +119,29 @@ export function fetch(url, params = {}) {
 
 export function post(url, data = {}, config) {
   return new Promise((resolve, reject) => {
-    const timestamp = new Date().getTime();
-    let paramsTemp = objKeySort(data); //升序排序
-    paramsTemp = filterNull(paramsTemp);
-    let sign = md5(JSON.stringify(paramsTemp) + timestamp);
-    const paramsPost = {
-      data: paramsTemp,
-      timestamp: timestamp,
-      sign: sign,
-    };
-    let params = Encrypt(JSON.stringify(paramsPost));
-
-    axios.post(url, params, config).then(
+    axios.post(url, data, config).then(
       (response) => {
-        resolve(JSON.parse(Decrypt(response.data)));
+        if (
+          response.status == 200 ||
+          response.statusText.toUpperCase() == "OK"
+        ) {
+          if (response.data.code == 200 || response.data.status) {
+            resolve(response.data);
+          } else {
+            Dialog.alert({
+              title: "温馨提示",
+              message: response.data.msg,
+            }).then(() => {
+              reject(response.data);
+            });
+          }
+        } else {
+          Toast.fail({
+            message: "服务器错误，请稍后再试",
+            forbidClick: true,
+            duration: 2000,
+          });
+        }
       },
       (err) => {
         reject(err);
