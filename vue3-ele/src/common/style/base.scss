@@ -1,0 +1,15 @@
+body,html,#app {
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+}
+.flex-cen-xy {display: flex;justify-content: center;align-items: center;}
+.flexc-cen-x {display: flex;align-items: center;}
+.flexc-cen-y {display: flex;justify-content: center;}
+.flex-y {display: flex;justify-content: center;flex-direction: column;}
+.flex-xy {display: flex;align-items: center;justify-content: center;flex-direction: column;}
+.flex-x {display: flex;align-items: center;flex-direction: column;}
+.flex-spc-x {display: flex;align-items: center;justify-content: space-between;}
+.flexs-spc-x {display: flex;justify-content: space-between;}
+.flex-x-end{display: flex;align-items: center;justify-content: flex-end;}
+.flex-y-end{display: flex;align-items: flex-end;}

@@ -1,6 +1,3 @@
-/**
- * Created by zcr on 2018/1/25.
- */
 module.exports = {
   base_path:
     "https://dev.u-road.com/Urescueonline/Uenterprise/index.html#/homeMenu", //线上访问链接

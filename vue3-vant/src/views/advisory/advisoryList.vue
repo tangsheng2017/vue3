@@ -47,9 +47,9 @@ export default {
   methods: {
     async getNewsList() {
       try {
-        const vdata = await getNewsList(this.pullObj);
-        console.log(vdata, "vdata");
-        // this.handleResultList(result.data, type);
+        var postObj = this.$common.deepCopy(this.pullObj);
+        const vdata = await getNewsList(postObj);
+        console.log("获取列表", vdata);
       } catch (error) {}
     },
     scrollBottom() {
