@@ -1,4 +1,4 @@
-import { post } from "@/http/request.js";
+import { post } from "@/http/axios.js";
 
 /** 我的考勤 */
 

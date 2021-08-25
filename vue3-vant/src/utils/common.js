@@ -5,7 +5,7 @@ export const setlocalStorage = (key, val) => {
 };
 
 export const getlocalStorage = (key) => {
-  let item = localStorage.getItem(pageConfig.prefix + key);
+  var item = localStorage.getItem(pageConfig.prefix + key);
   return item;
 };
 
@@ -18,7 +18,7 @@ export const setsessionStorage = (key, val) => {
 };
 
 export const getsessionStorage = (key) => {
-  let item = sessionStorage.getItem(pageConfig.prefix + key);
+  var item = sessionStorage.getItem(pageConfig.prefix + key);
   return item;
 };
 
@@ -28,9 +28,9 @@ export const removesessionStorage = (key) => {
 
 //深拷贝
 export const deepCopy = (obj) => {
-  let newObj = Array.isArray(obj) ? [] : {};
+  var newObj = Array.isArray(obj) ? [] : {};
   if (obj && typeof obj === "object") {
-    for (let key in obj) {
+    for (var key in obj) {
       if (obj.hasOwnProperty.call(obj, key)) {
         newObj[key] =
           obj && typeof obj[key] === "object" ? deepCopy(obj[key]) : obj[key];

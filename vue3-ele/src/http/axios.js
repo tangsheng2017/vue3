@@ -1,13 +1,24 @@
 import axios from "axios";
-// const pageConfig = require("@/utils/config.js");
+const pageConfig = require("@/utils/config.js");
 import { Decrypt, Encrypt } from "./crypto-js/crypto-js";
 import md5 from "js-md5";
-// import { Toast, Dialog } from "vant";
+import { ElMessage, ElLoading } from "element-plus";
+import * as common from "@/utils/common.js";
+
+let baseUrl;
+if (process.env.NODE_ENV === "development") {
+  baseUrl = "/api";
+} else {
+  baseUrl = pageConfig.isTest
+    ? pageConfig.proxyTargetTest
+    : pageConfig.proxyTarget;
+}
+
+// let loading;
 
 axios.defaults.timeout = 50000;
-axios.defaults.baseURL = "/api";
+axios.defaults.baseURL = baseUrl;
 axios.defaults.headers["Content-Type"] = "application/x-www-form-urlencoded";
-// axios.defaults.baseURL = baseUrl;
 
 // 对象排序
 function objKeySort(arys) {
@@ -62,11 +73,7 @@ axios.interceptors.request.use(
       sign: sign,
     };
     config.data = Encrypt(JSON.stringify(paramsPost));
-
-    // Toast.loading({
-    //   message: "加载中...",
-    //   forbidClick: true,
-    // });
+    // loading = ElLoading.service({ lock: true, text: "加载中" });
 
     return config;
   },
@@ -79,35 +86,13 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => {
     response.data = JSON.parse(Decrypt(response.data));
-    // Toast.clear();
+    // loading.close();
     return response;
   },
   (error) => {
     return Promise.reject(error);
   }
 );
-
-/**
- * 封装get方法
- * @param url   地址
- * @param params  参数
- * @returns {Promise}
- */
-
-export function fetch(url, params = {}) {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(url, {
-        params,
-      })
-      .then((response) => {
-        resolve(response.data);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-}
 
 /**
  * 封装post请求
@@ -118,6 +103,24 @@ export function fetch(url, params = {}) {
  */
 
 export function post(url, data = {}, config) {
+  let userData = common.checklocalStorage("userdata");
+  if (userData) {
+    if (userData.userid) {
+      data.userid = userData.userid;
+    } else {
+      data.userid = "";
+    }
+    if (userData.uuid) {
+      data.uuid = userData.uuid;
+    } else {
+      data.uuid = "";
+    }
+    if (userData.EmplName) {
+      data.username = userData.EmplName;
+    } else {
+      data.username = "";
+    }
+  }
   return new Promise((resolve, reject) => {
     axios.post(url, data, config).then(
       (response) => {
@@ -126,21 +129,13 @@ export function post(url, data = {}, config) {
           response.statusText.toUpperCase() == "OK"
         ) {
           if (response.data.code == 200 || response.data.status) {
-            resolve(response.data);
+            resolve(response.data.data);
           } else {
-            // Dialog.alert({
-            //   title: "温馨提示",
-            //   message: response.data.msg,
-            // }).then(() => {
-            //   reject(response.data);
-            // });
+            ElMessage.error(response.data.msg);
+            reject(response.data);
           }
         } else {
-          // Toast.fail({
-          //   message: "服务器错误，请稍后再试",
-          //   forbidClick: true,
-          //   duration: 2000,
-          // });
+          ElMessage.error("服务器异常，请稍后再试");
         }
       },
       (err) => {

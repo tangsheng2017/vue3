@@ -1,109 +1,97 @@
 <template>
-  <div class="login">
-    <el-image class="logo_icon" :src="logoIcon" lazy></el-image>
-    <div class="login_con">
-      <div class="login_title">UniSOS登录</div>
-      <div class="login_input">
-        <div class="login_input_txt">账号</div>
-        <input type="text" v-model="formData.username" />
+  <div
+    class="login flex-cen-xy"
+    :style="{
+      'background-image': configInfo.yzlogobgimg
+        ? `url(${configInfo.yzlogobgimg})`
+        : `url(${loginBg})`,
+    }"
+  >
+    <div class="login-info flex-spc-x">
+      <div class="login-left flex-cen-xy">
+        <img
+          class="login-left-img"
+          :src="configInfo.yzxcimg ? configInfo.yzxcimg : `${loginBannerBg}`"
+          alt=""
+        />
       </div>
-      <div class="login_input">
-        <div class="login_input_txt">密码</div>
-        <input type="password" v-model="formData.password" />
-      </div>
-      <div class="login_input">
-        <div class="login_input_txt">你是</div>
-        <el-radio-group
-          v-model="formData.radio"
-          class="flex-spc-x"
-          style="display: flex"
-          fill="#D62329"
-        >
-          <el-radio
-            v-for="(list, index) in radioList"
-            :key="index"
-            :label="list.label"
-            >{{ list.name }}</el-radio
+      <div class="login-right">
+        <div class="login-title flexc-cen-x">
+          <img :src="configInfo.yzlogo" class="login-logo" alt="logo" />
+          <span :style="{ color: configInfo.ptmccolor }">{{
+            configInfo.yzplatformname ? configInfo.yzplatformname : "救援平台"
+          }}</span>
+        </div>
+        <el-form :model="loginObj">
+          <el-form-item label="">
+            <div class="flexc-cen-x">
+              <span class="iconfont icon-yonghuming form-img login-icon"></span>
+              <el-input
+                v-model="loginObj.username"
+                placeholder="请输入用户名"
+                clearable
+                @keyup.enter="loginIn"
+              ></el-input>
+            </div>
+          </el-form-item>
+          <el-form-item label="">
+            <div class="flexc-cen-x">
+              <span class="iconfont icon-mima form-img login-icon"></span>
+              <el-input
+                v-model="loginObj.password"
+                type="password"
+                placeholder="请输入密码"
+                clearable
+                @keyup.enter="loginIn"
+              ></el-input>
+            </div>
+          </el-form-item>
+          <el-button
+            class="foot-btn"
+            type="primary"
+            @click="loginIn"
+            :loading="ifLoading"
+            >登录</el-button
           >
-        </el-radio-group>
+        </el-form>
       </div>
-      <div class="login_btn" :style="{ opacity: isBtn ? '1' : '0.4' }">
-        登录
-      </div>
-      <el-link
-        class="login_link"
-        :underline="false"
-        href="https://iot.u-road.com/unisos/#/trialApplication"
-        target="_blank"
-      >
-        <span>免费试用</span>
-        <img src="../assets/login/logo_free_icon.png" />
-      </el-link>
     </div>
-    <div class="login_bottom">
-      <el-divider>广州优路加信息科技有限公司</el-divider>
+    <div class="login-foot" :style="{ color: configInfo.pagefontcolor }">
+      {{ configInfo.yzlogofont }}
     </div>
   </div>
 </template>
 
 <script>
 import md5 from "js-md5";
-import { getNewsList } from "@/api/advisory.js";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import { loginIn } from "@/api/login.js";
 export default {
   data() {
     return {
-      logoIcon: require("@/assets/login/login_logo_icon.png"),
-      radioList: [
-        {
-          name: "路段级",
-          label: "1",
-        },
-        {
-          name: "省级",
-          label: "2",
-        },
-        {
-          name: "国家级",
-          label: "3",
-        },
-      ],
-      formData: {
+      labelPosition: "left",
+      ifLoading: false, //是否登陆中
+      loginObj: {
         username: "",
         password: "",
-        radio: "1",
       },
+      loginBg: require("../assets/login/bg.png"),
+      loginBannerBg: require("../assets/login/icon1.png"),
     };
   },
   computed: {
-    isBtn() {
-      if (
-        this.formData.username.length > 0 &&
-        this.formData.password.length > 0
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    },
+    ...mapState({
+      // 获取数据
+      configInfo: (state) => state.configInfo, //页面配置
+      routerData: (state) => state.routerData, //菜单
+    }),
   },
   methods: {
-    async getNewsList() {
-      try {
-        const vdata = await getNewsList(this.pullObj);
-        console.log(vdata, "vdata");
-        // this.handleResultList(result.data, type);
-      } catch (error) {}
-    },
-    jmPasswork(pw) {
-      return md5(pw);
-    },
     //登录
-    loginIn() {
+    async loginIn() {
       if (this.ifLoading) {
         return;
       }
-
-      //this.$router.push('/index')
       let postObj = this.$common.deepCopy(this.loginObj);
       if (!postObj.username) {
         this.$notifyMsg("提示", "用户名不能为空", "error");
@@ -117,120 +105,77 @@ export default {
       this.setDataByName({ key: "routerData", val: "" }); //菜单
       postObj.password = this.jmPasswork(postObj.password);
       this.ifLoading = true;
-      this.$Post(
-        "Admin/Sys/User/login",
-        { data: postObj },
-        (res) => {
-          var vdata = res.data;
-          this.$notifyMsg("提示", "登录成功");
-          this.$common.setlocalStorage("userdata", JSON.stringify(vdata));
-          this.$common.setlocalStorage("clientID", vdata.clientID);
-          //登录成功
-          setTimeout(() => {
-            this.ifLoading = false;
-            this.$router.replace("/index/home/index");
-          }, 1500);
-        },
-        (err) => {
-          setTimeout(() => {
-            this.ifLoading = false;
-          }, 1500);
-          this.$alertShow(err.msg);
-        },
-        true
-      );
+      const vdata = await loginIn(postObj);
+      try {
+        this.$notifyMsg("提示", "登录成功");
+        this.$common.setlocalStorage("userdata", JSON.stringify(vdata));
+        //登录成功
+        setTimeout(() => {
+          this.ifLoading = false;
+          this.$router.replace("/index/home/index");
+        }, 1500);
+      } catch (error) {
+        this.ifLoading = false;
+      }
+    },
+    ...mapMutations({
+      setDataByName: "setDataByName",
+    }),
+    jmPasswork(pw) {
+      return md5(pw);
     },
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .login {
   width: 100%;
   height: 100%;
-  background: #fafafa;
-  .logo_icon {
-    width: 108px;
-    height: 48px;
-    margin: 24px 0 0 38px;
-  }
-  .login_con {
-    width: 420px;
-    box-shadow: 0px 1px 18px 0px rgba(175, 0, 0, 0.14);
-    border-radius: 10px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    padding: 0 40px;
-    .login_title {
-      font-size: 30px;
-      font-weight: bold;
-      color: #d62329;
-      margin-top: 50px;
-      text-align: center;
-    }
-    .login_input_txt {
-      margin: 35px 0 20px 0;
-      font-size: 14px;
-      color: rgba(0, 0, 0, 0.45);
-    }
-    input {
-      width: 100%;
-      padding-bottom: 6px;
-      font-size: 14px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-    }
-    .login_btn {
-      width: 420px;
-      line-height: 60px;
-      text-align: center;
-      letter-spacing: 4px;
-      background: #d62329;
-      border-radius: 8px;
-      opacity: 0.4;
-      font-size: 18px;
-      color: #fff;
-      margin-top: 70px;
-    }
-    .login_link {
-      margin: 30px 0 70px 0;
-      color: #e7575c;
-      // text-align: center;
-      display: flex;
-      justify-content: center;
-      // align-items: center;
-      img {
-        width: 15px;
-        margin-left: 4px;
-      }
-    }
-  }
-  .login_bottom {
-    width: 500px;
-    position: absolute;
-    left: 50%;
-    bottom: 6px;
-    transform: translate(-50%);
-  }
-  .el-radio__input.is-checked + .el-radio__label {
-    color: rgba(0, 0, 0, 0.65) !important;
-  }
-  .el-radio__input.is-checked .el-radio__inner {
-    background: #d62329 !important;
-    border-color: #d62329 !important;
-  }
-  .el-divider {
-    background-color: #d62329;
-  }
-  .el-divider__text {
-    background-color: #fafafa;
-    color: #e7575c;
-  }
-  .el-link--inner {
-    display: flex;
-    align-items: center;
-  }
+  background: url("../assets/login/bg.png");
+  background-size: 100% 100%;
+}
+.login-info {
+  width: 925px;
+  height: 592px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 100px;
+}
+.login-left {
+  width: 367px;
+}
+.login-left-img {
+  width: 100%;
+}
+.login-right {
+  padding: 0 50px 59px 60px;
+}
+.login-title {
+  font-size: 30px;
+  text-align: center;
+  font-weight: bold;
+  margin: 56px 0;
+  word-break: keep-all;
+}
+.login-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.foot-btn {
+  margin-top: 31px;
+}
+.form-img {
+  font-size: 28px;
+  margin-right: 10px;
+}
+.login-foot {
+  position: fixed;
+  bottom: 30px;
+  text-align: center;
+  font-size: 15px;
+  color: #fff;
 }
 </style>
