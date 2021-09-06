@@ -22,6 +22,11 @@ const routes = [
     name: "advisoryDetails",
     component: () => import("@/views/advisory/advisoryDetails"),
   },
+  {
+    path: "/audio",
+    name: "audio",
+    component: () => import("@/views/audio"),
+  },
 ];
 
 const router = createRouter({
